@@ -147,6 +147,7 @@ Default path for the config file:
       viewResetOptions: 'g'
       markCommitAsFixup: 'f'
       createFixupCommit: 'F' # create fixup commit for this commit
+      filterBy: 'f'
       squashAboveCommits: 'S'
       moveDownCommit: '<c-j>' # move commit down one
       moveUpCommit: '<c-k>' # move commit up one

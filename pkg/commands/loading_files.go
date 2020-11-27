@@ -2,6 +2,7 @@ package commands
 
 import (
 	"fmt"
+	"sort"
 	"strings"
 
 	"github.com/jesseduffield/lazygit/pkg/commands/models"
@@ -57,7 +58,8 @@ func (c *GitCommand) GetStatusFiles(opts GetStatusFileOptions) []*models.File {
 		}
 		files = append(files, file)
 	}
-	return files
+
+	return sortByStaged(files)
 }
 
 // GitStatus returns the plaintext short status of the repo
@@ -99,13 +101,23 @@ func (c *GitCommand) MergeStatusFiles(oldFiles, newFiles []*models.File, selecte
 			}
 		}
 	}
+	return sortByStaged(result)
+}
 
-	// append any new files to the end
-	for index, newFile := range newFiles {
-		if !utils.IncludesInt(appendedIndexes, index) {
-			result = append(result, newFile)
+func sortByStaged(files []*models.File) []*models.File {
+	unStagedFiles := []*models.File{}
+	stagedFiles := []*models.File{}
+
+	for _, file := range files {
+		if file.HasStagedChanges {
+			stagedFiles = append(stagedFiles, file)
+		} else {
+			unStagedFiles = append(unStagedFiles, file)
 		}
 	}
 
-	return result
+	sort.SliceStable(stagedFiles, func(i, j int) bool { return stagedFiles[i].Name < stagedFiles[j].Name })
+	sort.SliceStable(unStagedFiles, func(i, j int) bool { return unStagedFiles[i].Name < unStagedFiles[j].Name })
+
+	return append(stagedFiles, unStagedFiles...)
 }
